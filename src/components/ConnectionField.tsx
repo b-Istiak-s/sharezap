@@ -5,12 +5,14 @@ import { io, Socket } from "socket.io-client";
 export function ConnectionField({
   socket,
   setSocket,
+  isConnectionEstablished,
   wsId,
   setWsId,
   setRequestData,
 }: {
   socket: Socket | null;
   setSocket: React.Dispatch<React.SetStateAction<Socket | null>>;
+  isConnectionEstablished: boolean;
   wsId?: string | null;
   setWsId: React.Dispatch<React.SetStateAction<string | null>>;
   setRequestData: React.Dispatch<
@@ -46,7 +48,7 @@ export function ConnectionField({
       );
       if (!res.ok) {
         console.log("Something went wrong. Fetching again.");
-        fetchDigits(currentWsId);
+        // fetchDigits(currentWsId);
       }
       const data = await res.json();
       setDigits(data.code);
@@ -55,11 +57,13 @@ export function ConnectionField({
       const now = Date.now();
       const delay = data.expiresAt - now;
 
-      if (delay > 0) {
-        setTimeout(() => fetchDigits(currentWsId), delay);
-      } else {
-        // If expired already, fetch immediately
-        fetchDigits(currentWsId);
+      if (!isConnectionEstablished) {
+        if (delay > 0) {
+          setTimeout(() => fetchDigits(currentWsId), delay);
+        } else {
+          // If expired already, fetch immediately
+          fetchDigits(currentWsId);
+        }
       }
     } catch (error) {
       console.error("Error fetching digits:", error);

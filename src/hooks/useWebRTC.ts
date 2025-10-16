@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 
 interface WebRTCOptions {
@@ -13,6 +13,8 @@ export function useWebRTC({
   const pc = useRef<RTCPeerConnection | null>(null);
   const dataChannel = useRef<RTCDataChannel | null>(null);
   const targetId = useRef<string | null>(initialTargetId || null);
+  const [isConnectionEstablished, setIsConnectionEstablished] =
+    useState<boolean>(false);
 
   const setTargetId = (id: string) => {
     targetId.current = id;
@@ -35,13 +37,13 @@ export function useWebRTC({
     if (targetId) {
       // Initiator creates data channel
       dataChannel.current = pc.current.createDataChannel("file-text-channel");
-      dataChannel.current.onopen = () => console.log("Data channel open");
+      dataChannel.current.onopen = () => setIsConnectionEstablished(true);
       dataChannel.current.onmessage = (e) => console.log("Received:", e.data);
     } else {
       // Receiver waits for data channel
       pc.current.ondatachannel = (event) => {
         dataChannel.current = event.channel;
-        dataChannel.current.onopen = () => console.log("Data channel open");
+        dataChannel.current.onopen = () => setIsConnectionEstablished(true);
         dataChannel.current.onmessage = (e) => console.log("Received:", e.data);
       };
     }
@@ -113,6 +115,7 @@ export function useWebRTC({
   return {
     pc,
     dataChannel,
+    isConnectionEstablished,
     initConnection,
     createOffer,
     handleOffer,

@@ -1,8 +1,8 @@
 "use client";
-// import { ConnectionEstablished } from "@/components/ConnectionEstablished";
+import { ConnectionEstablished } from "@/components/ConnectionEstablished";
 import { ConnectionField } from "@/components/ConnectionField";
 import { ConnectionRequest } from "@/components/ConnectionRequest";
-// import { ConnectionShared } from "@/components/ConnectionShared";
+import { ConnectionShared } from "@/components/ConnectionShared";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ export default function Home() {
   // WebRTC hook at top level
   const {
     pc,
+    isConnectionEstablished,
     initConnection,
     createOffer,
     handleOffer,
@@ -65,27 +66,32 @@ export default function Home() {
     <div>
       <Header />
       <main>
-        <ConnectionField
-          socket={socket}
-          setSocket={setSocket}
-          wsId={wsId}
-          setWsId={setWsId}
-          setRequestData={setRequestData}
-        />
-
-        {requestData && (
-          <div className="fixed top-0 right-0 rounded-2xl bg-[#D9D9D9] max-w-[426] p-5 m-5">
-            <ConnectionRequest
-              DeviceName={requestData.userAgent}
-              onConnect={handleRequestConnect}
-              onIgnore={handleIgnore}
+        {!isConnectionEstablished ? (
+          <>
+            <ConnectionField
+              socket={socket}
+              setSocket={setSocket}
+              wsId={wsId}
+              setWsId={setWsId}
+              setRequestData={setRequestData}
             />
+
+            {requestData && (
+              <div className="fixed top-0 right-0 rounded-2xl bg-[#D9D9D9] max-w-[426] p-5 m-5">
+                <ConnectionRequest
+                  DeviceName={requestData.userAgent}
+                  onConnect={handleRequestConnect}
+                  onIgnore={handleIgnore}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-row ml-[10%]">
+            <ConnectionEstablished DeviceName="Device: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" />
+            <ConnectionShared />
           </div>
         )}
-        {/* <div className="flex flex-row ml-[10%]">
-          <ConnectionEstablished DeviceName="Device: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" />
-          <ConnectionShared />
-        </div> */}
       </main>
     </div>
   );
