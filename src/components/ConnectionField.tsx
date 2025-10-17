@@ -22,6 +22,7 @@ export function ConnectionField({
   const [digits, setDigits] = useState<number>(222222);
   const [clientDigits, setClientDigits] = useState<string[]>(Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [isRequestSent, setIsRequestSent] = useState<boolean>(false);
 
   const handleChange = (idx: number, value: string) => {
     if (!/^\d?$/.test(value)) return; // allow only 1 digit
@@ -109,6 +110,8 @@ export function ConnectionField({
       );
       if (!res.ok) {
         console.log("Something went wrong. Please try again.");
+      } else {
+        setIsRequestSent(true);
       }
     } catch (error) {
       console.error("Error fetching digits:", error);
@@ -153,10 +156,16 @@ export function ConnectionField({
         </div>
 
         <button
-          className="mt-3 px-4 py-2 bg-gray-600 text-white rounded focus:bg-gray-700 active:bg-gray-800"
+          className={`mt-3 px-4 py-2 rounded text-white
+                    ${
+                      isRequestSent
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-gray-600 hover:bg-gray-700 active:bg-gray-800"
+                    }`}
           onClick={handleConnect}
+          disabled={isRequestSent}
         >
-          Connect
+          {!isRequestSent ? "Connect" : "Request Sent"}
         </button>
       </div>
     </>

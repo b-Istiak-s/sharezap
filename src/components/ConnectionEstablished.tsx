@@ -7,6 +7,7 @@ export function ConnectionEstablished({
   sendData,
 }: ConnectionEstablishedProps) {
   const [text, setText] = useState<string>("");
+  const [isDataSent, setIsDataSent] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -54,19 +55,45 @@ export function ConnectionEstablished({
         className="hidden"
         onChange={handleFileSelect}
       />
-      <div className="flex flex-row ">
+      <span>
+        <b>Please refrain from sending files whose sizes exceed 50 MB</b>
+      </span>
+      <div className="flex flex-row justify-evenly">
         <button
-          className="rounded-2xl bg-[#CD0202] text-white px-3 py-1"
-          onClick={handleUploadClick}
+          className={`rounded-2xl bg-[#CD0202] text-white px-3 py-1
+                    ${
+                      !isDataSent
+                        ? "hover:bg-[#b00101] active:bg-[#990000]"
+                        : null
+                    }`}
+          onClick={() => {
+            setIsDataSent(true);
+            setTimeout(() => {
+              setIsDataSent(false);
+            }, 5000);
+            handleUploadClick();
+          }}
+          disabled={isDataSent}
         >
-          Upload File
+          {!isDataSent ? "Send File" : "Data Sent"}
         </button>
 
         <button
-          className="rounded-2xl bg-[#6A70D9] text-white px-3 py-1"
-          onClick={() => sendData(text)}
+          className={`rounded-2xl bg-[#6A70D9] text-white px-3 py-1
+                    ${
+                      !isDataSent
+                        ? "hover:bg-[#5a60c7] active:bg-[#4b50b5]"
+                        : null
+                    }`}
+          onClick={() => {
+            setIsDataSent(true);
+            setTimeout(() => {
+              setIsDataSent(false);
+            }, 5000);
+            sendData(text);
+          }}
         >
-          Send Text
+          {!isDataSent ? "Send Text" : "Data Sent"}
         </button>
       </div>
     </div>

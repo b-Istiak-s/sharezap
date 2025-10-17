@@ -1,6 +1,6 @@
 "use client";
 import { SharedItem } from "@/types/SharedItem";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function ConnectionShared({
   dataChannel,
@@ -9,11 +9,11 @@ export function ConnectionShared({
 }) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [sharedData, setSharedData] = useState<SharedItem[]>([]);
-  let incomingFileMeta: {
+  const incomingFileMeta = useRef<{
     fileName: string;
     fileSize: number;
     mimeType: string;
-  } | null = null;
+  } | null>(null);
 
   useEffect(() => {
     if (!dataChannel.current) return;
@@ -27,12 +27,12 @@ export function ConnectionShared({
           data.fileSize &&
           data.mimeType
         ) {
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          incomingFileMeta = {
+          incomingFileMeta.current = {
             fileName: data.fileName,
-            fileSize: parseInt(data.fileSize.toString(), 10), // convert string to number if needed
+            fileSize: parseInt(data.fileSize.toString(), 10),
             mimeType: data.mimeType,
           };
+
           return;
         }
 
@@ -49,21 +49,21 @@ export function ConnectionShared({
             event.data instanceof Blob
               ? event.data
               : new Blob([event.data], {
-                  type: incomingFileMeta?.mimeType || "",
+                  type: incomingFileMeta.current?.mimeType || "",
                 });
 
           setSharedData((prev) => [
             {
               type: "file",
-              fileName: incomingFileMeta?.fileName || "unknown",
-              fileSize: incomingFileMeta?.fileSize
-                ? `${incomingFileMeta.fileSize} bytes`
+              fileName: incomingFileMeta.current?.fileName || "unknown",
+              fileSize: incomingFileMeta.current?.fileSize
+                ? `${incomingFileMeta.current.fileSize} bytes`
                 : "unknown",
               file: blob,
             },
             ...prev,
           ]);
-          incomingFileMeta = null;
+          // incomingFileMeta.current = null;
         }
       }
     };
