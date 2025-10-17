@@ -47,22 +47,31 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('offer')
   handleOffer(
     @MessageBody()
-    data: { targetId: string; offer: RTCSessionDescriptionInit },
+    data: {
+      targetId: string;
+      offer: RTCSessionDescriptionInit;
+      userAgent?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const target = this.clients.get(data.targetId);
-    console.log(data.targetId, this.getClientId(client), data.offer);
+
     if (target)
       target.emit('offer', {
         from: this.getClientId(client),
         offer: data.offer,
+        userAgent: data.userAgent,
       });
   }
 
   @SubscribeMessage('answer')
   handleAnswer(
     @MessageBody()
-    data: { targetId: string; answer: RTCSessionDescriptionInit },
+    data: {
+      targetId: string;
+      answer: RTCSessionDescriptionInit;
+      userAgent?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const target = this.clients.get(data.targetId);
@@ -70,6 +79,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       target.emit('answer', {
         from: this.getClientId(client),
         answer: data.answer,
+        userAgent: data.userAgent,
       });
   }
 

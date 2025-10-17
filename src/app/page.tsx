@@ -15,16 +15,19 @@ export default function Home() {
     userAgent: string;
     requesterId: string;
   } | null>(null);
+  const [fromUserAgent, setFromUserAgent] = useState<string | null>(null);
 
   // WebRTC hook at top level
   const {
     pc,
+    dataChannel,
     isConnectionEstablished,
     initConnection,
     createOffer,
     handleOffer,
     handleAnswer,
     setTargetId,
+    sendData,
   } = useWebRTC({
     socket,
     targetId: requestData?.requesterId,
@@ -39,10 +42,14 @@ export default function Home() {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("offer", async ({ offer, from }) => {
-      handleOffer(offer, from);
+    socket.on("offer", async ({ offer, from, userAgent }) => {
+      handleOffer(offer, from, userAgent);
+      setFromUserAgent(userAgent);
     });
-    socket.on("answer", async ({ answer }) => handleAnswer(answer));
+    socket.on("answer", async ({ answer, userAgent }) => {
+      handleAnswer(answer, userAgent);
+      setFromUserAgent(userAgent);
+    });
     socket.on("ice-candidate", ({ candidate }) =>
       pc.current?.addIceCandidate(new RTCIceCandidate(candidate))
     );
@@ -70,6 +77,7 @@ export default function Home() {
           <>
             <ConnectionField
               socket={socket}
+              isConnectionEstablished={isConnectionEstablished}
               setSocket={setSocket}
               wsId={wsId}
               setWsId={setWsId}
@@ -88,8 +96,11 @@ export default function Home() {
           </>
         ) : (
           <div className="flex flex-row ml-[10%]">
-            <ConnectionEstablished DeviceName="Device: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" />
-            <ConnectionShared />
+            <ConnectionEstablished
+              DeviceName={fromUserAgent}
+              sendData={sendData}
+            />
+            <ConnectionShared dataChannel={dataChannel} />
           </div>
         )}
       </main>

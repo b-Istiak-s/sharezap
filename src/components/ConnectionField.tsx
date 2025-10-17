@@ -34,41 +34,44 @@ export function ConnectionField({
     }
   };
 
-  const fetchDigits = useCallback(async (currentWsId: string) => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/codes/generate`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ wsId: currentWsId }),
+  const fetchDigits = useCallback(
+    async (currentWsId: string) => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/codes/generate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ wsId: currentWsId }),
+          }
+        );
+        if (!res.ok) {
+          console.log("Something went wrong. Fetching again.");
+          // fetchDigits(currentWsId);
         }
-      );
-      if (!res.ok) {
-        console.log("Something went wrong. Fetching again.");
-        // fetchDigits(currentWsId);
-      }
-      const data = await res.json();
-      setDigits(data.code);
+        const data = await res.json();
+        setDigits(data.code);
 
-      // Calculate how long until expiration
-      const now = Date.now();
-      const delay = data.expiresAt - now;
+        // Calculate how long until expiration
+        const now = Date.now();
+        const delay = data.expiresAt - now;
 
-      if (!isConnectionEstablished) {
-        if (delay > 0) {
-          setTimeout(() => fetchDigits(currentWsId), delay);
-        } else {
-          // If expired already, fetch immediately
-          fetchDigits(currentWsId);
+        if (!isConnectionEstablished) {
+          if (delay > 0) {
+            setTimeout(() => fetchDigits(currentWsId), delay);
+          } else {
+            // If expired already, fetch immediately
+            // fetchDigits(currentWsId);
+          }
         }
+      } catch (error) {
+        console.error("Error fetching digits:", error);
       }
-    } catch (error) {
-      console.error("Error fetching digits:", error);
-    }
-  }, []);
+    },
+    [isConnectionEstablished]
+  );
 
   useEffect(() => {
     const s = io(process.env.NEXT_PUBLIC_BACKEND_URL);
