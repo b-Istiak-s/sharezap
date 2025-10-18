@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: backend
+
       - name: Lint code
         run: npm run lint
 
@@ -35,11 +39,3 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-
-      - name: Lint Backend
-        run: npm run lint
-        working-directory: backend
-
-      - name: Build Backend
-        run: npm run build
-        working-directory: backend
