@@ -93,6 +93,7 @@ export function ConnectionField({
     return () => {
       s.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDigits]);
 
   const handleConnect = async () => {

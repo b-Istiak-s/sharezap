@@ -37,22 +37,54 @@ export default function Home() {
     if (requestData?.requesterId) {
       setTargetId(requestData.requesterId); // update target dynamically
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestData]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("offer", async ({ offer, from, userAgent }) => {
+    const onOffer = async ({
+      offer,
+      from,
+      userAgent,
+    }: {
+      offer: RTCSessionDescriptionInit;
+      from: string;
+      userAgent: string;
+    }) => {
       handleOffer(offer, from, userAgent);
       setFromUserAgent(userAgent);
-    });
-    socket.on("answer", async ({ answer, userAgent }) => {
+    };
+
+    const onAnswer = async ({
+      answer,
+      userAgent,
+    }: {
+      answer: RTCSessionDescriptionInit;
+      userAgent: string;
+    }) => {
       handleAnswer(answer, userAgent);
       setFromUserAgent(userAgent);
-    });
-    socket.on("ice-candidate", ({ candidate }) =>
-      pc.current?.addIceCandidate(new RTCIceCandidate(candidate))
-    );
+    };
+
+    const onIceCandidate = ({
+      candidate,
+    }: {
+      candidate: RTCIceCandidateInit;
+    }) => {
+      pc.current?.addIceCandidate(new RTCIceCandidate(candidate));
+    };
+
+    socket.on("offer", onOffer);
+    socket.on("answer", onAnswer);
+    socket.on("ice-candidate", onIceCandidate);
+
+    return () => {
+      socket.off("offer", onOffer);
+      socket.off("answer", onAnswer);
+      socket.off("ice-candidate", onIceCandidate);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   const handleRequestConnect = async () => {

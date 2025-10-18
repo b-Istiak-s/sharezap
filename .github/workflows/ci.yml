@@ -1,37 +1,45 @@
 name: Next.js CI
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    build-and-test:
-        runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 20
-                  cache: "npm"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Lint code
-              run: npm run lint
+      - name: Lint code
+        run: npm run lint
 
-            - name: Format Check
-              run: npm run format:check
+      - name: Format Check
+        run: npm run format:check
 
-            - name: Build Next.js
-              run: npm run build
-              env:
-                  NODE_ENV: production
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Lint Backend
+        run: npm run lint
+        working-directory: backend
+
+      - name: Build Backend
+        run: npm run build
+        working-directory: backend

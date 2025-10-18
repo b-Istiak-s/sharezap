@@ -16,7 +16,8 @@ export function ConnectionShared({
   } | null>(null);
 
   useEffect(() => {
-    if (!dataChannel.current) return;
+    const channel = dataChannel.current;
+    if (!channel) return;
 
     const handleMessage = (event: MessageEvent) => {
       try {
@@ -69,12 +70,11 @@ export function ConnectionShared({
     };
 
     // Assign onmessage handler directly
-    dataChannel.current.onmessage = handleMessage;
+    channel.onmessage = handleMessage;
 
     return () => {
-      if (!dataChannel.current) return;
       // Clear the handler on cleanup
-      dataChannel.current.onmessage = null;
+      channel.onmessage = null;
     };
   }, [dataChannel]);
 
