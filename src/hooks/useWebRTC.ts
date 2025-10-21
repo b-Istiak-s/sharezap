@@ -1,3 +1,4 @@
+import { IceServer } from "@/types/IceServers";
 import { useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 
@@ -20,18 +21,11 @@ export function useWebRTC({
     targetId.current = id;
   };
 
-  const initConnection = () => {
+  const initConnection = (iceServers: IceServer[]) => {
+    if (pc.current) return;
+
     pc.current = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: "stun:stun.relay.metered.ca:80",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80",
-          username: "1c8a5390618907f4d612e982",
-          credential: "jO4BgZXTfR6xtYey",
-        },
-      ],
+      iceServers: iceServers,
     });
 
     if (targetId.current) {
@@ -93,10 +87,11 @@ export function useWebRTC({
   const handleOffer = async (
     offer: RTCSessionDescriptionInit,
     from: string,
-    userAgent: string
+    userAgent: string,
+    iceServers: IceServer[]
   ) => {
     userAgent = navigator.userAgent; // override the remote user agent with local user agent
-    if (!pc.current) initConnection();
+    if (!pc.current) initConnection(iceServers);
     if (!socket || !pc.current) return;
 
     await pc.current.setRemoteDescription(new RTCSessionDescription(offer));
@@ -112,7 +107,7 @@ export function useWebRTC({
   ) => {
     if (!pc.current) return;
     await pc.current.setRemoteDescription(new RTCSessionDescription(answer));
-    // console.log("Answer received from:", fromUserAgent);
+    console.log("Answer received from:", fromUserAgent);
   };
 
   const sendData = (data: string | Blob) => {

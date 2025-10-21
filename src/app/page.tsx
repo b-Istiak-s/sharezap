@@ -4,6 +4,7 @@ import { ConnectionField } from "@/components/ConnectionField";
 import { ConnectionRequest } from "@/components/ConnectionRequest";
 import { ConnectionShared } from "@/components/ConnectionShared";
 import { useWebRTC } from "@/hooks/useWebRTC";
+import { IceServer } from "@/types/IceServers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
@@ -15,6 +16,7 @@ export default function Home() {
     userAgent: string;
     requesterId: string;
   } | null>(null);
+  const [iceServers, setIceServers] = useState<IceServer[] | null>(null);
   const [fromUserAgent, setFromUserAgent] = useState<string | null>(null);
 
   // WebRTC hook at top level
@@ -32,6 +34,29 @@ export default function Home() {
     socket,
     targetId: requestData?.requesterId,
   });
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/turn/credentials`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch ICE servers from backend");
+      }
+
+      const data = await res.json();
+      console.log(data);
+
+      if (!data?.iceServers || !Array.isArray(data.iceServers)) {
+        throw new Error("Invalid ICE server response from backend");
+      }
+
+      setIceServers(data.iceServers);
+    }
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (requestData?.requesterId) {
@@ -52,7 +77,8 @@ export default function Home() {
       from: string;
       userAgent: string;
     }) => {
-      handleOffer(offer, from, userAgent);
+      if (!iceServers) return;
+      handleOffer(offer, from, userAgent, iceServers);
       setFromUserAgent(userAgent);
     };
 
@@ -85,16 +111,16 @@ export default function Home() {
       socket.off("ice-candidate", onIceCandidate);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
+  }, [socket, iceServers]);
 
   const handleRequestConnect = async () => {
-    if (!requestData?.requesterId) return; // ensure we have the target
+    if (!requestData?.requesterId || !iceServers) return; // ensure we have the target
     setTargetId(requestData.requesterId);
 
-    initConnection();
+    initConnection(iceServers);
 
     // Wait a tick so targetId.current updates
-    await new Promise((res) => setTimeout(res, 0));
+    // await new Promise((res) => setTimeout(res, 0));
 
     await createOffer();
     setRequestData(null);
