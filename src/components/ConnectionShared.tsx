@@ -79,7 +79,7 @@ export function ConnectionShared({
   }, [dataChannel]);
 
   return (
-    <div className="flex flex-col gap-2 m-2 flex-1">
+    <div className="flex flex-col gap-2 m-2 flex-1 w-full md:w-auto">
       <span className="font-bold">Shared</span>
       {sharedData.map((item, index) => {
         const handleCopy = () => {
@@ -93,7 +93,7 @@ export function ConnectionShared({
           <div
             key={index}
             id={`shared-item-${index}`}
-            className="bg-[#D9D9D9] p-2 flex justify-between items-center w-80 rounded-lg"
+            className="bg-[#D9D9D9] p-2 flex justify-between items-center w-80 rounded-lg "
           >
             {item.type === "text" ? (
               <>

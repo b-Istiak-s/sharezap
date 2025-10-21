@@ -40,7 +40,7 @@ export function ConnectionEstablished({
   };
 
   return (
-    <div className="flex flex-col gap-2 m-2 flex-1 border-r border-gray-500 pr-5">
+    <div className="flex flex-col gap-2 m-2 flex-1 border-r border-gray-500 pr-5 w-full md:w-auto">
       <span>{DeviceName}</span>
       <input
         placeholder="Write text....."

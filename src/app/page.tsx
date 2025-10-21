@@ -153,7 +153,7 @@ export default function Home() {
             )}
           </>
         ) : (
-          <div className="flex flex-row ml-[10%]">
+          <div className="flex flex-col md:flex-row md:ml-[10%] gap-4 p-4">
             <ConnectionEstablished
               DeviceName={fromUserAgent}
               sendData={sendData}
