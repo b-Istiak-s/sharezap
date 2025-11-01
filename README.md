@@ -2,6 +2,8 @@
 
 This is a fullstack project with **Next.js** for the frontend and **Nest.js** for the backend. It uses [`concurrently`](https://www.npmjs.com/package/concurrently) to run both servers together.
 
+![ShareZap Demo](media/sharezap.gif)
+
 ## Getting Started
 
 ### Install Dependencies
