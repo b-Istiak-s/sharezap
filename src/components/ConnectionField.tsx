@@ -75,7 +75,9 @@ export function ConnectionField({
   );
 
   useEffect(() => {
-    const s = io(process.env.NEXT_PUBLIC_BACKEND_URL);
+    const s = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL, {
+      transports: ["websocket"],
+    });
     setSocket(s);
 
     s.on("connect", () => {});
