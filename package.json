@@ -9,7 +9,7 @@
     "build": "concurrently \"npm run build:next\" \"npm run build:nest\"",
     "build:next": "next build --turbopack",
     "build:nest": "npm run build --prefix backend",
-    "start": "concurrently \"npm run start:next\" \"npm run start:nest\"",
+    "start": "concurrently \"npm run start:next\" \"dotenv -e backend/.env -- npm run start:nest\"",
     "start:next": "next start",
     "start:nest": "node backend/dist/main.js",
     "lint": "eslint src backend/src --ext .ts,.tsx",
@@ -17,6 +17,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "mongodb": "^6.20.0",
     "next": "15.5.5",
     "react": "19.1.0",
@@ -33,6 +34,7 @@
     "@types/react-dom": "^19",
     "@types/ws": "^8.18.1",
     "concurrently": "^9.2.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.5",
     "prettier": "^3.6.2",
